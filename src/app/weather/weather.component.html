@@ -1,0 +1,121 @@
+<!-- Header Starts -->
+<section>
+  <h1 class="d-flex justify-content-center">
+    <u>Weather Information</u>
+  </h1>
+
+  <div class="d-flex justify-content-center mt-4">
+    <button [disabled]="weatherType === 'daily'"
+            type="button"
+            class="btn btn-dark mx-1"
+            (click)="changeWeatherType('daily')">
+      Daily Forecast
+    </button>
+    <button [disabled]="weatherType === 'historical'"
+            type="button" class="btn btn-dark mx-1"
+            (click)="changeWeatherType('historical')">
+      Historical Data
+    </button>
+    <button [disabled]="weatherType === 'map'"
+            type="button"
+            class="btn btn-dark mx-1"
+            (click)="changeWeatherType('map')">
+      Map
+    </button>
+  </div>
+
+</section>
+<!-- Header Ends -->
+
+<div *ngIf="showLoader" class="d-flex justify-content-center mt-5">
+  <div class="spinner-border text-danger" role="status"></div>
+</div>
+
+<!-- Main Starts -->
+<section *ngIf="!showLoader" class="section-main mt-4">
+
+  <div *ngIf="weatherType === 'daily'" class="main-card d-flex justify-content-center">
+    <div class="card my-3 text-center">
+      <img class="card-img-top m-auto"
+           src="{{imageUrl}}"
+           alt="Card image cap">
+      <div class="card-body">
+        <h4 class="card-title">{{weatherData.name}}</h4>
+
+        <p>
+          <u>
+            {{dateData.dayString}}
+            {{dateData.dateString}}
+          </u>
+        </p>
+
+        <p> Clouds: {{weatherData.clouds}}</p>
+        <p> Dew Point: {{weatherData.dew_point}}</p>
+        <p> Feels Like: {{weatherData.feels_like}}</p>
+        <p> Humidity: {{weatherData.humidity}}%</p>
+        <p> Pressure: {{weatherData.pressure}} hPa</p>
+        <p> Temp: {{weatherData.temp}} °C</p>
+        <p> uvi: {{weatherData.uvi}}</p>
+        <p> Visibility: {{weatherData.visibility}}</p>
+        <p> Wind Deg: {{weatherData.wind_deg}} degrees</p>
+        <p> Wind Speed: {{weatherData.wind_speed}} meter/sec</p>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="weatherType === 'historical'" class="sub-card">
+
+    <div class="d-flex justify-content-center">
+      <div *ngFor="let data of weatherHistoryData;let i = index" class="card my-3 text-center mx-4">
+        <img class="card-img-top m-auto"
+             [src]="getImageUrl(data.current?.weather[0].icon)"
+             alt="Card image cap">
+        <div class="card-body">
+
+          <p>
+            <u>
+              {{storeDates[i].date}}
+              {{storeDates[i].day}}
+            </u>
+          </p>
+
+          <p> Clouds: {{data.current.clouds}}</p>
+          <p> Dew Point: {{data.current.dew_point}}</p>
+          <p> Feels Like: {{data.current.feels_like}}</p>
+          <p> Humidity: {{data.current.humidity}}%</p>
+          <p> Pressure: {{data.current.pressure}} hPa</p>
+          <p> Temp: {{data.current.temp}} °C</p>
+          <p> uvi: {{data.current.uvi}}</p>
+          <p> Visibility: {{data.current.visibility}}</p>
+          <p> Wind Deg: {{data.current.wind_deg}} degrees</p>
+          <p> Wind Speed: {{data.current.wind_speed}} meter/sec</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="weatherType === 'map'" class="sub-card d-flex justify-content-center">
+    <div *ngIf="!locationLoaded && !showLocationFailText" class="spinner-border text-danger" role="status"></div>
+    <ng-container *ngIf="locationLoaded">
+      <div *ngIf="apiLoaded | async">
+        <google-map [options]="mapOptions">
+          <map-marker
+            #markerRef='mapMarker'
+            [position]="marker.position"
+            (mapClick)="openInfo(markerRef)">
+          </map-marker>
+          <map-info-window>
+            Temperature: {{weatherData.temp}}
+            <br>
+            Humidity: {{weatherData.humidity}}
+          </map-info-window>
+        </google-map>
+      </div>
+    </ng-container>
+    <div *ngIf="showLocationFailText">
+      No Location Detected.
+    </div>
+  </div>
+</section>
+<!-- Main Ends -->
